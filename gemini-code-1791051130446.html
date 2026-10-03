@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Generador de CV - Optimizado para ATS</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f4f7f6; color: #333; line-height: 1.6; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1, h2 { color: #2c3e50; }
+        .form-section { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #ddd; }
+        label { display: block; margin-top: 10px; font-weight: bold; font-size: 14px; }
+        input[type="text"], input[type="email"], textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; }
+        button { background: #3498db; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 20px; width: 100%; font-weight: bold; }
+        button:hover { background: #2980b9; }
+        .help-text { font-size: 12px; color: #666; margin-top: 2px; display: block; }
+        
+        /* Estilos del CV Generado (Una sola columna) */
+        #cv-output { display: none; margin-top: 40px; border-top: 3px solid #2c3e50; padding-top: 30px; }
+        .cv-header { text-align: left; margin-bottom: 20px; padding-bottom: 10px; }
+        .cv-name { font-size: 26px; font-weight: bold; margin: 0 0 5px 0; color: #000; }
+        .cv-contact { font-size: 14px; margin: 0; color: #333; }
+        .cv-section-title { font-size: 16px; font-weight: bold; text-transform: uppercase; margin: 20px 0 10px 0; color: #000; border-bottom: 1px solid #000; padding-bottom: 3px; }
+        .cv-item { margin-bottom: 15px; }
+        .cv-item-header { font-weight: bold; font-size: 15px; }
+        .cv-item-meta { font-style: italic; font-size: 14px; color: #444; margin-bottom: 5px; }
+        .cv-bullets { margin: 5px 0 0 20px; padding: 0; font-size: 14px; }
+        
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; padding: 0; }
+            #cv-form { display: none; }
+            #cv-output { display: block; border: none; margin-top: 0; padding-top: 0; }
+            .print-btn { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <form id="cv-form">
+        <h1>Generador de CV Profesional</h1>
+        <p>Responde a estas preguntas para armar tu perfil. El diseño priorizará el contenido y superará los filtros ATS corporativos.</p>
+
+        <!-- Paso 1 -->
+        <div class="form-section">
+            <h2>1. Datos Personales</h2>
+            <label>Nombre Completo</label>
+            <input type="text" id="nombre" placeholder="Ej. Ana Pérez" required>
+            <label>Ciudad y País</label>
+            <input type="text" id="ubicacion" placeholder="Ej. Ciudad de México, México" required>
+            <label>Teléfono</label>
+            <input type="text" id="telefono" placeholder="Ej. +52 55 1234 5678" required>
+            <label>Correo Profesional</label>
+            <input type="email" id="correo" placeholder="Ej. ana.perez@email.com" required>
+        </div>
+
+        <!-- Paso 2 -->
+        <div class="form-section">
+            <h2>2. Perfil Profesional</h2>
+            <label>Titular Profesional</label>
+            <span class="help-text">Ej. Profesional administrativo especializado en gestión de procesos.</span>
+            <input type="text" id="titular" required>
+            
+            <label>Resumen Profesional (Abierta)</label>
+            <span class="help-text">Sintetiza qué haces, cuánta experiencia tienes y qué buscas (3-4 líneas).</span>
+            <textarea id="resumen" rows="4" required></textarea>
+        </div>
+
+        <!-- Paso 3 -->
+        <div class="form-section">
+            <h2>3. Experiencia Laboral</h2>
+            <label>Último Cargo / Puesto</label>
+            <input type="text" id="cargo" placeholder="Ej. Asistente administrativo">
+            <label>Empresa y Periodo</label>
+            <input type="text" id="empresa" placeholder="Ej. Empresa XYZ | 2021 – 2024">
+            <label>Funciones y Responsabilidades Clave</label>
+            <span class="help-text">Separa cada función con un salto de línea (Enter). Utiliza verbos de acción.</span>
+            <textarea id="funciones" rows="4"></textarea>
+        </div>
+
+        <!-- Paso 4 -->
+        <div class="form-section">
+            <h2>4. Formación Académica</h2>
+            <label>Título, Institución y Fechas</label>
+            <input type="text" id="formacion" placeholder="Ej. Licenciatura en Administración, Universidad XXX | 2015 – 2019">
+        </div>
+
+        <!-- Paso 5 -->
+        <div class="form-section">
+            <h2>5. Habilidades y Competencias (Múltiples)</h2>
+            <label>Habilidades Técnicas y Soft Skills</label>
+            <span class="help-text">Sepáralas por comas. Ej. Manejo de Excel intermedio, Atención al cliente, Resolución de problemas.</span>
+            <input type="text" id="habilidades">
+            
+            <label>Idiomas</label>
+            <input type="text" id="idiomas" placeholder="Ej. Español: Nativo, Inglés: Intermedio">
+        </div>
+
+        <button type="button" onclick="generarCV()">Crear e Imprimir CV</button>
+    </form>
+
+    <div id="cv-output">
+        <div class="cv-header">
+            <div class="cv-name" id="out-nombre"></div>
+            <div class="cv-contact" id="out-contacto"></div>
+        </div>
+        
+        <div class="cv-section-title">Perfil Profesional</div>
+        <p style="margin-top:5px; font-size:14px;"><strong id="out-titular"></strong><br><br><span id="out-resumen"></span></p>
+        
+        <div class="cv-section-title">Experiencia Laboral</div>
+        <div class="cv-item">
+            <div class="cv-item-header" id="out-cargo"></div>
+            <div class="cv-item-meta" id="out-empresa"></div>
+            <ul class="cv-bullets" id="out-funciones"></ul>
+        </div>
+        
+        <div class="cv-section-title">Formación Académica</div>
+        <p style="margin-top:5px; font-size:14px;" id="out-formacion"></p>
+        
+        <div class="cv-section-title">Habilidades</div>
+        <ul class="cv-bullets" id="out-habilidades"></ul>
+        
+        <div class="cv-section-title" id="idiomas-title">Idiomas</div>
+        <ul class="cv-bullets" id="out-idiomas"></ul>
+        
+        <button class="print-btn" onclick="window.print()" style="margin-top: 40px; background: #27ae60;">Guardar como PDF / Imprimir</button>
+    </div>
+</div>
+
+<script>
+    function generarCV() {
+        // Datos Personales
+        document.getElementById('out-nombre').innerText = document.getElementById('nombre').value;
+        document.getElementById('out-contacto').innerText = 
+            document.getElementById('ubicacion').value + " | " + 
+            document.getElementById('telefono').value + " | " + 
+            document.getElementById('correo').value;
+        
+        // Perfil
+        document.getElementById('out-titular').innerText = document.getElementById('titular').value;
+        document.getElementById('out-resumen').innerText = document.getElementById('resumen').value;
+        
+        // Experiencia
+        document.getElementById('out-cargo').innerText = document.getElementById('cargo').value;
+        document.getElementById('out-empresa').innerText = document.getElementById('empresa').value;
+        
+        let funciones = document.getElementById('funciones').value.split('\n');
+        let ulFunciones = document.getElementById('out-funciones');
+        ulFunciones.innerHTML = '';
+        funciones.forEach(f => {
+            if(f.trim()) {
+                let li = document.createElement('li');
+                li.innerText = f.trim();
+                ulFunciones.appendChild(li);
+            }
+        });
+        
+        // Formación
+        document.getElementById('out-formacion').innerText = document.getElementById('formacion').value;
+        
+        // Habilidades
+        let habilidades = document.getElementById('habilidades').value.split(',');
+        let ulHab = document.getElementById('out-habilidades');
+        ulHab.innerHTML = '';
+        habilidades.forEach(h => {
+            if(h.trim()) {
+                let li = document.createElement('li');
+                li.innerText = h.trim();
+                ulHab.appendChild(li);
+            }
+        });
+        
+        // Idiomas
+        let idiomas = document.getElementById('idiomas').value.split(',');
+        let ulIdiomas = document.getElementById('out-idiomas');
+        ulIdiomas.innerHTML = '';
+        if(document.getElementById('idiomas').value.trim() === '') {
+            document.getElementById('idiomas-title').style.display = 'none';
+        } else {
+            document.getElementById('idiomas-title').style.display = 'block';
+            idiomas.forEach(i => {
+                if(i.trim()) {
+                    let li = document.createElement('li');
+                    li.innerText = i.trim();
+                    ulIdiomas.appendChild(li);
+                }
+            });
+        }
+        
+        document.getElementById('cv-form').style.display = 'none';
+        document.getElementById('cv-output').style.display = 'block';
+        window.scrollTo(0, 0);
+    }
+</script>
+</body>
+</html>
