@@ -1,197 +1,236 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Generador de CV - Optimizado para ATS</title>
-    <style>
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f4f7f6; color: #333; line-height: 1.6; margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h1, h2 { color: #2c3e50; }
-        .form-section { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #ddd; }
-        label { display: block; margin-top: 10px; font-weight: bold; font-size: 14px; }
-        input[type="text"], input[type="email"], textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; }
-        button { background: #3498db; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 20px; width: 100%; font-weight: bold; }
-        button:hover { background: #2980b9; }
-        .help-text { font-size: 12px; color: #666; margin-top: 2px; display: block; }
-        
-        /* Estilos del CV Generado (Una sola columna) */
-        #cv-output { display: none; margin-top: 40px; border-top: 3px solid #2c3e50; padding-top: 30px; }
-        .cv-header { text-align: left; margin-bottom: 20px; padding-bottom: 10px; }
-        .cv-name { font-size: 26px; font-weight: bold; margin: 0 0 5px 0; color: #000; }
-        .cv-contact { font-size: 14px; margin: 0; color: #333; }
-        .cv-section-title { font-size: 16px; font-weight: bold; text-transform: uppercase; margin: 20px 0 10px 0; color: #000; border-bottom: 1px solid #000; padding-bottom: 3px; }
-        .cv-item { margin-bottom: 15px; }
-        .cv-item-header { font-weight: bold; font-size: 15px; }
-        .cv-item-meta { font-style: italic; font-size: 14px; color: #444; margin-bottom: 5px; }
-        .cv-bullets { margin: 5px 0 0 20px; padding: 0; font-size: 14px; }
-        
-        @media print {
-            body { background: white; padding: 0; }
-            .container { box-shadow: none; padding: 0; }
-            #cv-form { display: none; }
-            #cv-output { display: block; border: none; margin-top: 0; padding-top: 0; }
-            .print-btn { display: none; }
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Creador de CV en 7 pasos</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--bg:#eef1f4;--card:#fff;--ink:#14213d;--mut:#5b6678;--ac:#0f766e;--acs:#d5efec;--bd:#cfd6df;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1626;--card:#16223a;--ink:#e8edf6;--mut:#9aa7bd;--ac:#4fd1c5;--acs:#12373a;--bd:#2b3b5a}}
+:root[data-theme="dark"]{--bg:#0e1626;--card:#16223a;--ink:#e8edf6;--mut:#9aa7bd;--ac:#4fd1c5;--acs:#12373a;--bd:#2b3b5a}
+*{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Bricolage Grotesque",system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:1.9rem;font-weight:800;margin:8px 0 4px}
+h2{font-size:1.3rem;margin:0 0 4px}
+p.sub{color:var(--mut);margin:0 0 16px}
+.bar{display:flex;gap:6px;margin:14px 0 18px}
+.bar i{flex:1;height:6px;border-radius:3px;background:var(--bd)}
+.bar i.on{background:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:20px}
+label{display:block;font-weight:600;margin:14px 0 4px}
+.hint{font-weight:400;color:var(--mut);font-size:.88rem}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--ac);outline-offset:1px}
+textarea{min-height:90px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.row{grid-template-columns:1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip{border:1px solid var(--bd);background:var(--bg);color:var(--ink);border-radius:20px;padding:6px 12px;cursor:pointer;font:inherit;font-size:.9rem}
+.chip[aria-pressed="true"]{background:var(--ac);border-color:var(--ac);color:var(--card)}
+.chip.add{border-style:dashed}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:20px}
+button.btn{background:var(--ac);color:var(--card);border:0;border-radius:8px;padding:11px 20px;font:inherit;font-weight:600;cursor:pointer}
+button.btn.alt{background:transparent;color:var(--ink);border:1px solid var(--bd)}
+.job{border:1px solid var(--bd);border-radius:10px;padding:14px;margin-top:14px}
+.chk{display:flex;gap:10px;align-items:center;font-weight:600;background:var(--acs);padding:12px;border-radius:8px;margin-top:6px}
+.chk input{width:auto}
+pre{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:12px;overflow-x:auto;max-height:340px;font-size:.78rem;white-space:pre}
+.tips{background:var(--acs);border-radius:8px;padding:10px 14px;font-size:.9rem;margin-top:12px}
+.hide{display:none}
+.err{color:#c0392b;font-size:.9rem;min-height:1.2em;margin-top:8px}
+</style>
 </head>
 <body>
+<main>
+<h1>Crea tu CV en 7 pasos</h1>
+<p class="sub">Responde la encuesta. Al final descargas un PDF de una columna, listo para sistemas ATS, y el código LaTeX para editarlo.</p>
+<div class="bar" id="bar"></div>
+<div class="card">
 
-<div class="container">
-    <form id="cv-form">
-        <h1>Generador de CV Profesional</h1>
-        <p>Responde a estas preguntas para armar tu perfil. El diseño priorizará el contenido y superará los filtros ATS corporativos.</p>
+<section data-s="0">
+<h2>1. Datos personales</h2>
+<p class="sub">Solo lo necesario para que te contacten. No pedimos dirección, edad ni estado civil.</p>
+<label for="nombre">Nombre completo</label><input id="nombre" autocomplete="name">
+<div class="row"><div><label for="ciudad">Ciudad</label><input id="ciudad" placeholder="Medellín"></div>
+<div><label for="pais">País</label><input id="pais" value="Colombia"></div></div>
+<div class="row"><div><label for="tel">Teléfono</label><input id="tel" type="tel" placeholder="+57 300 000 0000"></div>
+<div><label for="email">Correo profesional</label><input id="email" type="email" placeholder="nombre.apellido@correo.com"></div></div>
+<label for="link">LinkedIn o portafolio <span class="hint">(opcional)</span></label><input id="link" placeholder="linkedin.com/in/tu-perfil">
+<div class="tips">Consejo: usa un correo con tu nombre, sin apodos.</div>
+</section>
 
-        <!-- Paso 1 -->
-        <div class="form-section">
-            <h2>1. Datos Personales</h2>
-            <label>Nombre Completo</label>
-            <input type="text" id="nombre" placeholder="Ej. Ana Pérez" required>
-            <label>Ciudad y País</label>
-            <input type="text" id="ubicacion" placeholder="Ej. Ciudad de México, México" required>
-            <label>Teléfono</label>
-            <input type="text" id="telefono" placeholder="Ej. +52 55 1234 5678" required>
-            <label>Correo Profesional</label>
-            <input type="email" id="correo" placeholder="Ej. ana.perez@email.com" required>
-        </div>
+<section data-s="1" class="hide">
+<h2>2. Titular y perfil profesional</h2>
+<p class="sub">Con tus respuestas armamos un perfil de 3 a 4 líneas. Después puedes editarlo.</p>
+<label for="area">¿En qué área trabajas o quieres trabajar?</label>
+<select id="area"></select>
+<label for="puesto">¿Qué puesto buscas? <span class="hint">(ej. Analista de datos, Auxiliar contable)</span></label><input id="puesto">
+<label for="anios">¿Cuánta experiencia laboral tienes?</label>
+<select id="anios"><option value="0">Sin experiencia laboral</option><option value="1">Menos de 1 año</option><option value="2">1 a 2 años</option><option value="4">3 a 5 años</option><option value="7">Más de 5 años</option></select>
+<label>¿Qué te distingue? <span class="hint">(elige hasta 3)</span></label>
+<div class="chips" id="rasgos"></div>
+<label for="logro">Un dato cuantificable <span class="hint">(opcional; ej. "atendí 40 clientes al día", "reduje errores 20%")</span></label><input id="logro">
+<button class="btn alt" style="margin-top:14px" id="gen">Generar titular y perfil</button>
+<label for="titular">Titular profesional</label><input id="titular">
+<label for="perfil">Perfil profesional</label><textarea id="perfil"></textarea>
+</section>
 
-        <!-- Paso 2 -->
-        <div class="form-section">
-            <h2>2. Perfil Profesional</h2>
-            <label>Titular Profesional</label>
-            <span class="help-text">Ej. Profesional administrativo especializado en gestión de procesos.</span>
-            <input type="text" id="titular" required>
-            
-            <label>Resumen Profesional (Abierta)</label>
-            <span class="help-text">Sintetiza qué haces, cuánta experiencia tienes y qué buscas (3-4 líneas).</span>
-            <textarea id="resumen" rows="4" required></textarea>
-        </div>
+<section data-s="2" class="hide">
+<h2>3. Experiencia laboral</h2>
+<div class="chk"><input type="checkbox" id="sinexp"><label for="sinexp" style="margin:0">No tengo experiencia laboral</label></div>
+<div id="expbox"><div id="jobs"></div><button class="btn alt" id="addjob" style="margin-top:12px">Añadir otro puesto</button></div>
+<div id="proybox" class="hide">
+<p class="sub" style="margin-top:14px">Sin problema. Presenta proyectos, prácticas o voluntariados en su lugar.</p>
+<div id="proys"></div><button class="btn alt" id="addproy">Añadir otro proyecto</button></div>
+</section>
 
-        <!-- Paso 3 -->
-        <div class="form-section">
-            <h2>3. Experiencia Laboral</h2>
-            <label>Último Cargo / Puesto</label>
-            <input type="text" id="cargo" placeholder="Ej. Asistente administrativo">
-            <label>Empresa y Periodo</label>
-            <input type="text" id="empresa" placeholder="Ej. Empresa XYZ | 2021 – 2024">
-            <label>Funciones y Responsabilidades Clave</label>
-            <span class="help-text">Separa cada función con un salto de línea (Enter). Utiliza verbos de acción.</span>
-            <textarea id="funciones" rows="4"></textarea>
-        </div>
+<section data-s="3" class="hide">
+<h2>4. Formación académica</h2>
+<div id="edus"></div><button class="btn alt" id="addedu" style="margin-top:12px">Añadir otra formación</button>
+<div class="tips">Si eres recién egresado, la formación irá antes de la experiencia.</div>
+</section>
 
-        <!-- Paso 4 -->
-        <div class="form-section">
-            <h2>4. Formación Académica</h2>
-            <label>Título, Institución y Fechas</label>
-            <input type="text" id="formacion" placeholder="Ej. Licenciatura en Administración, Universidad XXX | 2015 – 2019">
-        </div>
+<section data-s="4" class="hide">
+<h2>5. Habilidades</h2>
+<p class="sub">Elige solo las que puedas demostrar en una entrevista.</p>
+<label>Técnicas <span class="hint">(sugeridas según tu área)</span></label><div class="chips" id="tec"></div>
+<input id="tecx" placeholder="Otra técnica y Enter" style="margin-top:8px">
+<label>Blandas</label><div class="chips" id="soft"></div>
+<input id="softx" placeholder="Otra habilidad y Enter" style="margin-top:8px">
+</section>
 
-        <!-- Paso 5 -->
-        <div class="form-section">
-            <h2>5. Habilidades y Competencias (Múltiples)</h2>
-            <label>Habilidades Técnicas y Soft Skills</label>
-            <span class="help-text">Sepáralas por comas. Ej. Manejo de Excel intermedio, Atención al cliente, Resolución de problemas.</span>
-            <input type="text" id="habilidades">
-            
-            <label>Idiomas</label>
-            <input type="text" id="idiomas" placeholder="Ej. Español: Nativo, Inglés: Intermedio">
-        </div>
+<section data-s="5" class="hide">
+<h2>6. Idiomas y extras</h2>
+<div id="langs"></div><button class="btn alt" id="addlang" style="margin-top:12px">Añadir idioma</button>
+<label for="refs">Referencias</label>
+<select id="refs"><option value="1">Incluir "Referencias disponibles a solicitud"</option><option value="0">No incluir</option></select>
+</section>
 
-        <button type="button" onclick="generarCV()">Crear e Imprimir CV</button>
-    </form>
+<section data-s="6" class="hide">
+<h2>7. Tu CV está listo</h2>
+<p class="sub">Revisa la lista y descarga.</p>
+<div class="tips" id="check"></div>
+<div class="nav" style="justify-content:flex-start;flex-wrap:wrap">
+<button class="btn" id="pdf">Descargar PDF</button>
+<button class="btn alt" id="texdl">Descargar .tex</button>
+<button class="btn alt" id="texcp">Copiar LaTeX</button></div>
+<label>Código LaTeX <span class="hint">(compila con pdfLaTeX, por ejemplo en Overleaf)</span></label>
+<pre id="tex"></pre>
+</section>
 
-    <div id="cv-output">
-        <div class="cv-header">
-            <div class="cv-name" id="out-nombre"></div>
-            <div class="cv-contact" id="out-contacto"></div>
-        </div>
-        
-        <div class="cv-section-title">Perfil Profesional</div>
-        <p style="margin-top:5px; font-size:14px;"><strong id="out-titular"></strong><br><br><span id="out-resumen"></span></p>
-        
-        <div class="cv-section-title">Experiencia Laboral</div>
-        <div class="cv-item">
-            <div class="cv-item-header" id="out-cargo"></div>
-            <div class="cv-item-meta" id="out-empresa"></div>
-            <ul class="cv-bullets" id="out-funciones"></ul>
-        </div>
-        
-        <div class="cv-section-title">Formación Académica</div>
-        <p style="margin-top:5px; font-size:14px;" id="out-formacion"></p>
-        
-        <div class="cv-section-title">Habilidades</div>
-        <ul class="cv-bullets" id="out-habilidades"></ul>
-        
-        <div class="cv-section-title" id="idiomas-title">Idiomas</div>
-        <ul class="cv-bullets" id="out-idiomas"></ul>
-        
-        <button class="print-btn" onclick="window.print()" style="margin-top: 40px; background: #27ae60;">Guardar como PDF / Imprimir</button>
-    </div>
+<div class="err" id="err" role="alert"></div>
+<div class="nav"><button class="btn alt" id="prev">Atrás</button><button class="btn" id="next">Siguiente</button></div>
 </div>
-
+</main>
 <script>
-    function generarCV() {
-        // Datos Personales
-        document.getElementById('out-nombre').innerText = document.getElementById('nombre').value;
-        document.getElementById('out-contacto').innerText = 
-            document.getElementById('ubicacion').value + " | " + 
-            document.getElementById('telefono').value + " | " + 
-            document.getElementById('correo').value;
-        
-        // Perfil
-        document.getElementById('out-titular').innerText = document.getElementById('titular').value;
-        document.getElementById('out-resumen').innerText = document.getElementById('resumen').value;
-        
-        // Experiencia
-        document.getElementById('out-cargo').innerText = document.getElementById('cargo').value;
-        document.getElementById('out-empresa').innerText = document.getElementById('empresa').value;
-        
-        let funciones = document.getElementById('funciones').value.split('\n');
-        let ulFunciones = document.getElementById('out-funciones');
-        ulFunciones.innerHTML = '';
-        funciones.forEach(f => {
-            if(f.trim()) {
-                let li = document.createElement('li');
-                li.innerText = f.trim();
-                ulFunciones.appendChild(li);
-            }
-        });
-        
-        // Formación
-        document.getElementById('out-formacion').innerText = document.getElementById('formacion').value;
-        
-        // Habilidades
-        let habilidades = document.getElementById('habilidades').value.split(',');
-        let ulHab = document.getElementById('out-habilidades');
-        ulHab.innerHTML = '';
-        habilidades.forEach(h => {
-            if(h.trim()) {
-                let li = document.createElement('li');
-                li.innerText = h.trim();
-                ulHab.appendChild(li);
-            }
-        });
-        
-        // Idiomas
-        let idiomas = document.getElementById('idiomas').value.split(',');
-        let ulIdiomas = document.getElementById('out-idiomas');
-        ulIdiomas.innerHTML = '';
-        if(document.getElementById('idiomas').value.trim() === '') {
-            document.getElementById('idiomas-title').style.display = 'none';
-        } else {
-            document.getElementById('idiomas-title').style.display = 'block';
-            idiomas.forEach(i => {
-                if(i.trim()) {
-                    let li = document.createElement('li');
-                    li.innerText = i.trim();
-                    ulIdiomas.appendChild(li);
-                }
-            });
-        }
-        
-        document.getElementById('cv-form').style.display = 'none';
-        document.getElementById('cv-output').style.display = 'block';
-        window.scrollTo(0, 0);
-    }
+const $=id=>document.getElementById(id);
+const AREAS={
+"Administración":{t:["Excel intermedio","Facturación y control de pagos","Control documental","Reportes mensuales","Atención a proveedores"],s:["Organización","Seguimiento de tareas","Atención al detalle"]},
+"Tecnología y datos":{t:["Python","SQL","Git","Excel avanzado","Power BI","HTML y CSS"],s:["Pensamiento crítico","Resolución de problemas","Aprendizaje continuo"]},
+"Ventas y marketing":{t:["SEO","Redes sociales","Google Analytics","CRM","Negociación"],s:["Comunicación","Orientación a resultados","Creatividad"]},
+"Ingeniería":{t:["AutoCAD","MATLAB","Simulación (LTspice)","Gestión de proyectos","Documentación técnica"],s:["Análisis","Trabajo en equipo","Gestión del tiempo"]},
+"Atención al cliente":{t:["Gestión de PQRS","CRM","Manejo de caja","Telefonía y chat"],s:["Empatía","Comunicación clara","Manejo de conflictos"]},
+"Otra":{t:["Excel básico","Office","Redacción"],s:["Organización","Trabajo en equipo","Adaptación"]}};
+const RASGOS=["Orientación a resultados","Enfoque meticuloso","Soluciones innovadoras","Trabajo en equipo","Resiliencia y adaptación","Aprendizaje rápido","Liderazgo","Comunicación clara"];
+const ACC=["Gestioné","Elaboré","Atendí","Coordiné","Implementé","Analicé","Apoyé","Redacté"];
+const NIV=["Nativo","Avanzado (C1)","Intermedio (B1-B2)","Básico (A1-A2)"];
+const sel={rasgos:new Set(),tec:new Set(),soft:new Set()};
+let step=0;const N=7;
+const bar=$("bar");for(let i=0;i<N;i++)bar.append(document.createElement("i"));
+$("area").innerHTML=Object.keys(AREAS).map(a=>`<option>${a}</option>`).join("");
+function chips(box,list,set,max){box.innerHTML="";list.forEach(x=>mk(box,x,set,max))}
+function mk(box,x,set,max){const b=document.createElement("button");b.type="button";b.className="chip";b.textContent=x;b.setAttribute("aria-pressed",set.has(x));
+b.onclick=()=>{if(set.has(x))set.delete(x);else{if(max&&set.size>=max)return;set.add(x)}b.setAttribute("aria-pressed",set.has(x))};box.append(b)}
+chips($("rasgos"),RASGOS,sel.rasgos,3);
+function skills(){const a=AREAS[$("area").value];chips($("tec"),a.t,sel.tec);chips($("soft"),a.s.concat(["Gestión del tiempo","Pensamiento crítico","Resolución de problemas","Trabajo en equipo","Adaptación"].filter(x=>!a.s.includes(x))),sel.soft)}
+skills();$("area").onchange=skills;
+function extra(inp,box,set){inp.addEventListener("keydown",e=>{if(e.key!=="Enter")return;e.preventDefault();const v=inp.value.trim();if(!v)return;set.add(v);mk(box,v,set);box.lastChild.setAttribute("aria-pressed","true");inp.value=""})}
+extra($("tecx"),$("tec"),sel.tec);extra($("softx"),$("soft"),sel.soft);
+function rm(el){const b=document.createElement("button");b.type="button";b.className="btn alt";b.textContent="Quitar";b.style.marginTop="10px";b.onclick=()=>el.remove();el.append(b)}
+function job(box,tipo){const d=document.createElement("div");d.className="job";
+d.innerHTML=`<div class="row"><div><label>${tipo?"Nombre del proyecto o práctica":"Cargo"}</label><input class="j-c"></div><div><label>${tipo?"Entidad o contexto":"Empresa"}</label><input class="j-e"></div></div>
+<label>Periodo <span class="hint">(ej. 2021 - 2024)</span></label><input class="j-p">
+<label>Funciones o aportes <span class="hint">(una por línea; toca un verbo para empezar)</span></label>
+<div class="chips"></div><textarea class="j-f" placeholder="Gestioné la facturación de 30 clientes"></textarea>`;
+const ch=d.querySelector(".chips"),ta=d.querySelector("textarea");
+ACC.forEach(v=>{const b=document.createElement("button");b.type="button";b.className="chip add";b.textContent=v;b.onclick=()=>{ta.value+=(ta.value&&!ta.value.endsWith("\n")?"\n":"")+v+" ";ta.focus()};ch.append(b)});
+if(box.children.length)rm(d);box.append(d)}
+function edu(){const d=document.createElement("div");d.className="job";
+d.innerHTML=`<label>Título o carrera</label><input class="e-t"><div class="row"><div><label>Institución</label><input class="e-i"></div><div><label>Fechas <span class="hint">(ej. 2023 - 2027)</span></label><input class="e-f"></div></div>`;
+if($("edus").children.length)rm(d);$("edus").append(d)}
+function lang(n,l){const d=document.createElement("div");d.className="row job";
+d.innerHTML=`<div><label>Idioma</label><input class="l-n" value="${n}"></div><div><label>Nivel</label><select class="l-l">${NIV.map(x=>`<option${x.startsWith(l)?" selected":""}>${x}</option>`).join("")}</select></div>`;
+if($("langs").children.length)rm(d);$("langs").append(d)}
+job($("jobs"),0);job($("proys"),1);edu();lang("Español","Nativo");lang("Inglés","Intermedio");
+$("addjob").onclick=()=>job($("jobs"),0);$("addproy").onclick=()=>job($("proys"),1);$("addedu").onclick=edu;$("addlang").onclick=()=>lang("","Básico");
+$("sinexp").onchange=e=>{$("expbox").classList.toggle("hide",e.target.checked);$("proybox").classList.toggle("hide",!e.target.checked)};
+$("gen").onclick=()=>{const p=$("puesto").value.trim()||$("area").value.toLowerCase(),a=+$("anios").value,r=[...sel.rasgos],lg=$("logro").value.trim();
+$("titular").value=(p.charAt(0).toUpperCase()+p.slice(1))+(r[0]?" | "+r[0]:"")+(a?` | ${["","1 año","2 años","4 años","+5 años"][[0,1,2,4,7].indexOf(a)]||""} de experiencia`:" | Perfil en formación");
+const exp=a?`con ${["","menos de 1 año","más de 1 año","3 a 5 años","más de 5 años"][[0,1,2,4,7].indexOf(a)]} de experiencia en ${$("area").value.toLowerCase()}`:`en formación en ${$("area").value.toLowerCase()}, con proyectos y práctica`;
+$("perfil").value=`Profesional ${exp}. Busco el puesto de ${p}. `+(r.length?`Me caracterizo por ${r.join(", ").toLowerCase()}. `:"")+(lg?`${lg.charAt(0).toUpperCase()+lg.slice(1)}${/[.!]$/.test(lg)?"":"."}`:"")};
+const V=c=>[...document.querySelectorAll(c)].map(e=>e.value.trim());
+function data(){const jobs=sel0=>[...document.querySelectorAll(sel0+" .job")].map(d=>({c:d.querySelector(".j-c").value.trim(),e:d.querySelector(".j-e").value.trim(),p:d.querySelector(".j-p").value.trim(),f:d.querySelector(".j-f").value.split("\n").map(s=>s.trim()).filter(Boolean)})).filter(j=>j.c||j.e);
+const ed=[...document.querySelectorAll("#edus .job")].map(d=>({t:d.querySelector(".e-t").value.trim(),i:d.querySelector(".e-i").value.trim(),f:d.querySelector(".e-f").value.trim()})).filter(x=>x.t);
+const lg=[...document.querySelectorAll("#langs .job")].map(d=>({n:d.querySelector(".l-n").value.trim(),l:d.querySelector(".l-l").value})).filter(x=>x.n);
+const sin=$("sinexp").checked;
+return{nombre:$("nombre").value.trim(),lugar:[$("ciudad").value.trim(),$("pais").value.trim()].filter(Boolean).join(", "),cont:[$("tel").value.trim(),$("email").value.trim(),$("link").value.trim()].filter(Boolean).join(" | "),titular:$("titular").value.trim(),perfil:$("perfil").value.trim(),sin,exp:jobs(sin?"#proys":"#jobs"),ed,tec:[...sel.tec],soft:[...sel.soft],lg,refs:$("refs").value==="1"}}
+function sections(d){const S=[];const E={t:d.sin?"Proyectos y práctica":"Experiencia laboral",k:"exp"};
+const exp={title:E.t,items:d.exp.map(j=>({h:j.c,s:[j.e,j.p].filter(Boolean).join(" | "),b:j.f}))};
+const edu={title:"Formación académica",items:d.ed.map(x=>({h:x.t,s:[x.i,x.f].filter(Boolean).join(" | "),b:[]}))};
+const sk=[];if(d.tec.length)sk.push("Técnicas: "+d.tec.join(", "));if(d.soft.length)sk.push("Blandas: "+d.soft.join(", "));
+const hab={title:"Habilidades",items:[{h:"",s:"",b:sk}],plain:1};
+const idi={title:"Idiomas",items:[{h:"",s:"",b:d.lg.map(x=>`${x.n}: ${x.l.toLowerCase()}`)}],plain:1};
+const arr=d.sin?[edu,exp]:[exp,edu];S.push({title:"Perfil profesional",text:d.perfil},...arr,hab,idi);
+if(d.refs)S.push({title:"Referencias",text:"Referencias disponibles a solicitud."});return S}
+function check(d){const m=[];if(!d.nombre)m.push("Falta tu nombre.");if(!d.email)m.push("Falta tu correo.");if(!d.perfil)m.push("Falta el perfil profesional (paso 2).");
+if(d.perfil.length>0&&d.perfil.length<80)m.push("Tu perfil es muy corto: añade experiencia y especialidad.");
+if(!d.tec.length&&!d.soft.length)m.push("Elige al menos algunas habilidades.");if(/proactiv|ganas de aprender/i.test(d.perfil))m.push("Evita frases vacías como 'proactivo' sin contexto.");
+return m}
+function pdf(){const d=data(),{jsPDF}=window.jspdf,doc=new jsPDF({unit:"pt",format:"a4"}),W=595,M=50,TW=W-2*M;let y=M;
+const need=h=>{if(y+h>800){doc.addPage();y=M}};
+const line=(t,sz,st,al)=>{doc.setFont("helvetica",st||"normal");doc.setFontSize(sz);doc.splitTextToSize(t,TW-(al||0)).forEach(l=>{need(sz+3);doc.text(l,M+(al||0),y);y+=sz+3})};
+line(d.nombre,20,"bold");if(d.titular){doc.setTextColor(15,118,110);line(d.titular,11,"bold");doc.setTextColor(0)}
+line(d.lugar,10);line(d.cont,10);y+=6;
+sections(d).forEach(s=>{need(40);y+=8;line(s.title,12,"bold");doc.setDrawColor(150);doc.line(M,y-6,W-M,y-6);y+=2;
+if(s.text)line(s.text,10.5);else s.items.forEach(it=>{if(it.h)line(it.h,10.5,"bold");if(it.s)line(it.s,10);it.b.forEach(b=>{if(s.plain)line(b,10.5);else{need(14);doc.setFont("helvetica","normal");doc.setFontSize(10.5);doc.text("\u2022",M+4,y);line(b,10.5,"normal",16)}});y+=4})});
+doc.save((d.nombre||"CV").replace(/\s+/g,"_")+"_CV.pdf")}
+const esc=s=>s.replace(/\\/g,"\\textbackslash{}").replace(/([&%$#_{}])/g,"\\$1").replace(/~/g,"\\textasciitilde{}").replace(/\^/g,"\\textasciicircum{}");
+function latex(d){let t=`\\documentclass[10.5pt,a4paper]{article}
+\\usepackage[utf8]{inputenc}
+\\usepackage[T1]{fontenc}
+\\usepackage[spanish]{babel}
+\\usepackage[margin=1.8cm]{geometry}
+\\usepackage{enumitem}
+\\usepackage{titlesec}
+\\usepackage[hidelinks]{hyperref}
+\\pagestyle{empty}
+\\setlength{\\parindent}{0pt}
+\\titleformat{\\section}{\\large\\bfseries}{}{0pt}{}[\\titlerule]
+\\titlespacing*{\\section}{0pt}{10pt}{5pt}
+\\setlist[itemize]{leftmargin=1.2em,itemsep=1pt,topsep=2pt}
+\\begin{document}
+{\\LARGE\\bfseries ${esc(d.nombre)}}\\\\[2pt]
+{\\bfseries ${esc(d.titular)}}\\\\
+${esc(d.lugar)}\\\\
+${esc(d.cont)}
+`;
+sections(d).forEach(s=>{t+=`\n\\section*{${esc(s.title)}}\n`;if(s.text)t+=esc(s.text)+"\n";else s.items.forEach(it=>{if(it.h)t+=`\\textbf{${esc(it.h)}}\\\\\n`;if(it.s)t+=`${esc(it.s)}\n`;if(it.b.length){if(s.plain)t+=it.b.map(esc).join("\\\\\n")+"\n";else t+=`\\begin{itemize}\n${it.b.map(b=>"  \\item "+esc(b)).join("\n")}\n\\end{itemize}\n`}t+="\n"})});
+return t+"\\end{document}\n"}
+function dl(name,txt){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:"text/plain"}));a.download=name;a.click()}
+function show(){document.querySelectorAll("section").forEach(s=>s.classList.toggle("hide",+s.dataset.s!==step));[...bar.children].forEach((b,i)=>b.classList.toggle("on",i<=step));
+$("prev").style.visibility=step?"visible":"hidden";$("next").style.display=step===N-1?"none":"";$("err").textContent="";
+if(step===N-1){const d=data(),m=check(d);$("check").innerHTML=m.length?"<b>Antes de enviar:</b><br>"+m.join("<br>"):"Todo en orden: una columna, sin datos innecesarios y listo para ATS.";$("tex").textContent=latex(d)}
+window.scrollTo(0,0)}
+$("next").onclick=()=>{if(step===0&&(!$("nombre").value.trim()||!$("email").value.trim())){$("err").textContent="Escribe tu nombre y tu correo para continuar.";return}
+if(step===1&&!$("perfil").value.trim()){$("err").textContent="Genera o escribe tu perfil profesional para continuar.";return}step++;show()};
+$("prev").onclick=()=>{step--;show()};
+$("pdf").onclick=pdf;$("texdl").onclick=()=>dl("CV.tex",$("tex").textContent);
+$("texcp").onclick=async()=>{try{await navigator.clipboard.writeText($("tex").textContent);$("texcp").textContent="Copiado"}catch(e){const r=document.createRange();r.selectNodeContents($("tex"));getSelection().removeAllRanges();getSelection().addRange(r);$("texcp").textContent="Selecciónalo y copia"}};
+show();
 </script>
 </body>
 </html>
